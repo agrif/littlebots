@@ -80,7 +80,10 @@ class BotProtocol:
         self.stdin.write(data)
         
         def check_error_callback(f):
-            e = f.exception()
+            try:
+                e = f.exception()
+            except asyncio.CancelledError as ce:
+                e = ce
             if e:
                 self.kill(e)
         
