@@ -7,15 +7,10 @@ settings = None
 
 CENTER_POINT = None
 
-def after_settings():
-    global CENTER_POINT
-    global settings
-    CENTER_POINT = (int(settings.board_size / 2), int(settings.board_size / 2))
 
 def set_settings(s):
     global settings
     settings = s
-    after_settings()
 
 ##############################
 
@@ -35,9 +30,10 @@ def memodict(f):
 
 @memodict
 def loc_types(loc):
-    for i in range(2):
-        if not (0 <= loc[i] < settings.board_size):
-            return set(['invalid'])
+    if not (0 <= loc[0] < settings.width):
+        return set(['invalid'])
+    if not (0 <= loc[1] < settings.height):
+        return set(['invalid'])
     types = set(['normal'])
     if loc in settings.spawn_coords:
         types.add('spawn')

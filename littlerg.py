@@ -35,6 +35,18 @@ def runrobot(factory):
     worldinfo = recv()
     width = worldinfo['width']
     height = worldinfo['height']
+    blocks = worldinfo['blocks']
+    spawns = worldinfo['spawns']
+    settings = worldinfo['settings']
+    settings.update({
+        "spawn_coords": spawns,
+        "obstacles": blocks,
+        "width": width,
+        "height": height,
+        })
+
+    rg.set_settings(AttrDict(settings))
+
     
     rg.CENTER_POINT = (int(width / 2), int(height / 2))
     

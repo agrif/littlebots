@@ -158,6 +158,9 @@ class Bot:
         world_info = {
             'width': world.width,
             'height': world.height,
+            'spawns': [loc for loc, tile in world.map.items() if tile == TILE_SPAWN],
+            'blocks': [loc for loc, tile in world.map.items() if tile == TILE_BLOCKED],
+            'settings': world.settings,
         }
         yield from self.prot.send(world_info)
     
@@ -188,10 +191,19 @@ class Bot:
 TILE_BLOCKED, TILE_SPAWN = range(2)
 
 class World:
-    def __init__(self, tracer=None, attack_damages=[8, 9, 10], collision_damages=[5], suicide_damages=[15]):
-        self.attack_damages = attack_damages
-        self.collision_damages = collision_damages
-        self.suicide_damages = suicide_damages
+    defaultSettings = {
+            "attack_damages": [8,9,10],
+            "collision_damages": [5],
+            "suicide_damages": [15],
+            "max_turns": 100,
+            "spawn_every": 10,
+            "spawn_per_player": 5,
+            "robot_hp": 50,
+            }
+
+    def __init__(self, tracer=None, settings={}):
+        self.settings = World.defaultSettings.copy()
+        self.settings.update(settings)
         self.bots = {}
         self.turn = 0
         self.tracer = tracer
@@ -250,7 +262,9 @@ class World:
         yield from bot.setup(self)
     
     @asyncio.coroutine
-    def launch(self, subname, player_id, hp=50):
+    def launch(self, subname, player_id, hp=None):
+        if hp is None:
+            hp = self.settings['robot_hp']
         bot = yield from Bot.launch(subname, player_id, hp)
         yield from self.add(bot)
         return bot
@@ -325,7 +339,7 @@ class World:
                         if results[bot][0] == 'move':
                             results[bot] = ['cancelled']
                         # damage the bot
-                        damage(bot, self.collision_damages, sources=locbots, guard_blocks_all=True)
+                        damage(bot, self.settings['collision_damages'], sources=locbots, guard_blocks_all=True)
             
             # if there were no collisions, finalize the movements
             if not foundcollision:
@@ -347,7 +361,7 @@ class World:
                 
                 if loc in self.bots:
                     d = random.choice([8, 9, 10])
-                    damage(self.bots[loc], self.attack_damages, sources=[bot])
+                    damage(self.bots[loc], self.settings['attack_damages'], sources=[bot])
                 self.trace('attack', bot, loc)
             elif act[0] == 'suicide':
                 x, y = bot.location
@@ -359,7 +373,7 @@ class World:
                 ]
                 for loc in adjacents:
                     if loc in self.bots:
-                        damage(self.bots[loc], self.suicide_damages, sources=[bot])
+                        damage(self.bots[loc], self.settings['suicide_damages'], sources=[bot])
                 bot.hp = 0
                 self.trace('suicide', bot)
         
@@ -435,10 +449,10 @@ def main(worldcls=World):
     player1 = 1
     player2 = 2
     
-    while world.turn < 100:
-        if world.turn % 10 == 0:
+    while world.turn < world.settings['max_turns']:
+        if world.turn % world.settings['spawn_every'] == 0:
             # add 5 robots for each team
-            for _ in range(5):
+            for _ in range(world.settings['spawn_per_player']):
                 yield from world.launch(subname1, player1)
                 yield from world.launch(subname2, player2)
                     
