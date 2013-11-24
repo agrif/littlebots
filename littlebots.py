@@ -420,7 +420,15 @@ def main(worldcls=World):
                 yield from world.launch(subname2, player2)
                     
         running = yield from world.step()
-    
+
+    # Count number of remaining bots
+    remaining_bots = [0, 0]
+    for bot_info in [x.bot_info for x in world.bots.values()]:
+        remaining_bots[bot_info['player_id']-1] += 1
+
+    print("After %d turns:" % world.turn)
+    print("  Player1 has %d bots alive" % remaining_bots[0])
+    print("  Player2 has %d bots alive" % remaining_bots[1])
     world.close()
     
     return 0
