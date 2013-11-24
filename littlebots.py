@@ -416,10 +416,16 @@ class DebugTracer:
         print("end of turn", world.turn)
 
 class SimpleMapTracer:
+    def __init__(self):
+        self.killed = []
+    
+    def kill(self, world, bot):
+        self.killed.append(bot.location)
+    
     def step(self, world):
         print("turn", world.turn)
-        for y in range(19):
-            for x in range(19):
+        for y in range(world.height):
+            for x in range(world.width):
                 bot = world.bots.get((x, y))
                 if bot is None:
                     tile = world.map.get((x, y))
@@ -427,6 +433,8 @@ class SimpleMapTracer:
                         print('XXX ', end='')
                     elif tile == TILE_SPAWN:
                         print('--- ', end='')
+                    elif (x, y) in self.killed:
+                        print('!!! ', end='')                        
                     else:
                         print('    ', end='')
                 else:
@@ -438,6 +446,7 @@ class SimpleMapTracer:
                     print(team + hp + ' ', end='')
             print()
         print()
+        self.killed = []
         time.sleep(0.3)
 
 @asyncio.coroutine
