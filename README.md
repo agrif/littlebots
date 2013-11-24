@@ -12,8 +12,8 @@ the [asyncio][] module.
  [robotgame.org]: http://robotgame.org/
  [asyncio]: http://code.google.com/p/tulip/
  
- Quick Start
- -----------
+Quick Start
+-----------
  
  You can run two test bots against each other with
  
