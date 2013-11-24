@@ -275,7 +275,20 @@ class World:
             if bot.hp < 0:
                 bot.hp = 0
         
-        # resolve all movement first
+        # cancel all movements onto blocked tiles
+        for bot, act in results.items():
+            if not act[0] == 'move':
+                continue
+            _, pos = act
+            pos = tuple(pos)
+            
+            tile = self.map.get(pos)
+            if tile == TILE_BLOCKED:
+                self.trace('collide', bot, pos)
+                damage(bot, self.collision_damages)
+                results[bot] = ['cancelled']
+        
+        # resolve all movement
         while True:
             nextbots = {}
             for bot, act in results.items():
@@ -305,6 +318,7 @@ class World:
                     foundcollision = True
                     for bot in locbots:
                         # cancel movements for bots that collide
+                        self.trace('collide', bot, loc)
                         if results[bot][0] == 'move':
                             results[bot] = ['cancelled']
                         # damage the bot
@@ -373,6 +387,8 @@ class DebugTracer:
         print(bot.robot_id, "killed at", bot.location)
     def spawn(self, world, bot):
         print(bot.robot_id, "spawned at", bot.location)
+    def collide(self, world, bot, loc):
+        print(bot.robot_id, "collided from", bot.location, "to", loc)
     def move(self, world, bot, loc):
         print(bot.robot_id, "moving from", bot.location, "to", loc)
     def attack(self, world, bot, loc):
