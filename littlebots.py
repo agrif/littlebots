@@ -163,7 +163,11 @@ class Bot:
         data = {}
         bots = []
         for bot in world.bots.values():
-            bots.append(bot.bot_info)
+            info = bot.bot_info
+            # if this bot isn't on our team, strip out the bot id
+            if info['player_id'] != self.player_id:
+                del info['robot_id']
+            bots.append(info)
         data['robots'] = bots
         data['turn'] = world.turn
         data['self'] = self.bot_info
