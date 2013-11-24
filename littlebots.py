@@ -438,7 +438,7 @@ class SimpleMapTracer:
                     print(team + hp + ' ', end='')
             print()
         print()
-        time.sleep(1)
+        time.sleep(0.3)
 
 @asyncio.coroutine
 def main(worldcls=World):
@@ -464,8 +464,8 @@ def main(worldcls=World):
         remaining_bots[bot_info['player_id']-1] += 1
 
     print("After %d turns:" % world.turn)
-    print("  Player1 has %d bots alive" % remaining_bots[0])
-    print("  Player2 has %d bots alive" % remaining_bots[1])
+    print("  Player A has %d bots alive" % remaining_bots[0])
+    print("  Player B has %d bots alive" % remaining_bots[1])
     world.close()
     
     return 0
