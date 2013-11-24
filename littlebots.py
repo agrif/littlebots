@@ -166,11 +166,11 @@ class Bot:
             info = bot.bot_info
             # if this bot isn't on our team, strip out the bot id
             if info['player_id'] != self.player_id:
-                del info['robot_id']
+                info['robot_id'] = 0
             bots.append(info)
         data['robots'] = bots
         data['turn'] = world.turn
-        data['self'] = self.bot_info
+        data['local'] = self.bot_info
         
         r = yield from self.prot.send(data, returns=True, timeout=0.3, default=['guard'])
         r = self._verify_step(r)

@@ -47,7 +47,7 @@ def runrobot(factory):
             robots[tuple(bot['location'])] = AttrDict(bot)
         world['robots'] = robots
         
-        for attr, val in world['self'].items():
+        for attr, val in world['local'].items():
             setattr(r, attr, val)
         r.location = tuple(r.location)
         
